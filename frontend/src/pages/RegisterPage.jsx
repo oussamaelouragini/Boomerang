@@ -1,0 +1,107 @@
+import { useState } from "react";
+import { Link, useNavigate, Navigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { registerSchema } from "@shared/schemas/auth.js";
+import { toast } from "sonner";
+import PasswordInput from "../components/PasswordInput";
+
+export default function RegisterPage() {
+  const { register, user, loading } = useAuth();
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: "" });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrors({});
+
+    const result = registerSchema.safeParse(form);
+    if (!result.success) {
+      const fieldErrors = {};
+      result.error.errors.forEach((err) => {
+        fieldErrors[err.path[0]] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await register(form.name, form.email, form.password);
+      navigate("/onboarding");
+    } catch (err) {
+      const msg = err.response?.data?.message || "Registration failed";
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (!loading && user) return <Navigate to="/" replace />;
+
+  return (
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md">
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-bold text-primary">Boomerang</h1>
+          <p className="mt-1.5 text-sm text-muted">Your campus Lost & Found community</p>
+        </div>
+
+        <div className="rounded-2xl bg-white p-8 shadow-card">
+          <h2 className="mb-6 text-xl font-bold text-dark">Create your account</h2>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-dark">Full Name</label>
+              <input
+                type="text"
+                name="name"
+                autoFocus
+                value={form.name}
+                onChange={handleChange}
+                className="w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                placeholder="Idriss Garfa"
+              />
+              {errors.name && <p className="mt-1 text-xs text-danger">{errors.name}</p>}
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-dark">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                className="w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                placeholder="your@email.com"
+              />
+              {errors.email && <p className="mt-1 text-xs text-danger">{errors.email}</p>}
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-dark">Password</label>
+              <PasswordInput name="password" value={form.password} onChange={handleChange} placeholder="Minimum 6 characters" />
+              {errors.password && <p className="mt-1 text-xs text-danger">{errors.password}</p>}
+            </div>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="mt-2 rounded-xl bg-primary py-3 text-sm font-bold text-white transition-colors hover:bg-primary-hover disabled:opacity-50"
+            >
+              {submitting ? "Creating account..." : "Create Account"}
+            </button>
+          </form>
+          <p className="mt-5 text-center text-sm text-muted">
+            Already have an account?{" "}
+            <Link to="/login" className="font-semibold text-primary hover:underline">
+              Login
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
