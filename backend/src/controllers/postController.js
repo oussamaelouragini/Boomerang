@@ -65,7 +65,12 @@ export const createPost = async (req, res, next) => {
       return res.status(400).json({ message: "Maximum 3 images allowed" });
     }
 
-    const location = JSON.parse(req.body.location);
+    let location;
+    try {
+      location = JSON.parse(req.body.location);
+    } catch {
+      return res.status(400).json({ message: "Invalid location format" });
+    }
 
     const post = await Post.create({
       type: req.body.type,
@@ -100,7 +105,11 @@ export const updatePost = async (req, res, next) => {
 
     const updates = { ...req.body };
     if (updates.location && typeof updates.location === "string") {
-      updates.location = JSON.parse(updates.location);
+      try {
+        updates.location = JSON.parse(updates.location);
+      } catch {
+        return res.status(400).json({ message: "Invalid location format" });
+      }
     }
     if (req.files && req.files.length > 0) {
       updates.images = req.files.map((f) => `/uploads/${f.filename}`);

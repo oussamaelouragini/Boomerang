@@ -1,4 +1,10 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "../hooks/useAuth";
+import { deletePost } from "../services/postService";
+import ConfirmDialog from "./ConfirmDialog";
+import { toast } from "sonner";
 
 const categoryLabels = {
   electronics: "Electronics",
@@ -26,14 +32,43 @@ function timeAgo(date) {
 }
 
 export default function PostCard({ post }) {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const deleteMutation = useMutation({
+    mutationFn: () => deletePost(post._id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      toast.success("Post deleted");
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.message || "Failed to delete post");
+    },
+  });
+
+  const handleDelete = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    deleteMutation.mutate();
+    setConfirmOpen(false);
+  };
+
+  const isOwner = user && post.author?._id === user.id;
+
   const imageUrl = post.images?.[0]
     ? `${import.meta.env.VITE_API_URL?.replace("/api", "")}${post.images[0]}`
     : null;
 
   return (
-    <Link to={`/posts/${post._id}`} className="group block">
-      <div className="overflow-hidden rounded-xl bg-white shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover">
-        <div className="relative aspect-[2/1] overflow-hidden bg-primary-light">
+    <div className="group relative block">
+      <Link to={`/posts/${post._id}`} className="block">
+        <div className="overflow-hidden rounded-xl bg-white shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover">
+          <div className="relative aspect-[2/1] overflow-hidden bg-primary-light">
           {imageUrl ? (
             <>
               <img
@@ -64,6 +99,18 @@ export default function PostCard({ post }) {
             <span className="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-success backdrop-blur-sm">
               Resolved
             </span>
+          )}
+
+          {isOwner && (
+            <button
+              onClick={handleDelete}
+              className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-danger opacity-0 backdrop-blur-sm transition-all hover:bg-danger hover:text-white group-hover:opacity-100"
+              title="Delete post"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+            </button>
           )}
         </div>
 
@@ -96,5 +143,17 @@ export default function PostCard({ post }) {
         </div>
       </div>
     </Link>
+    </div>
+
+    <ConfirmDialog
+      open={confirmOpen}
+      title="Delete post?"
+      description="This will permanently delete this post and all its conversations."
+      confirmLabel="Delete"
+      cancelLabel="Cancel"
+      variant="danger"
+      onConfirm={confirmDelete}
+      onCancel={() => setConfirmOpen(false)}
+    />
   );
 }

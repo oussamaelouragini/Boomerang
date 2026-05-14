@@ -32,8 +32,6 @@ Built with the MERN stack (MongoDB, Express, React, Node.js).
 ### 1. Clone and install
 
 ```bash
-git clone git@github.com:idrissgarfa/boomerang.git
-cd boomerang
 
 cd backend && npm install
 cd ../frontend && npm install

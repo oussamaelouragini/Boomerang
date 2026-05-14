@@ -50,14 +50,20 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold text-primary">Boomerang</h1>
-          <p className="mt-1.5 text-sm text-muted">Your campus Lost & Found community</p>
+          <p className="mt-1.5 text-sm text-muted">
+            Your campus Lost & Found community
+          </p>
         </div>
 
         <div className="rounded-2xl bg-white p-8 shadow-card">
-          <h2 className="mb-6 text-xl font-bold text-dark">Create your account</h2>
+          <h2 className="mb-6 text-xl font-bold text-dark">
+            Create your account
+          </h2>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className="mb-1.5 block text-sm font-semibold text-dark">Full Name</label>
+              <label className="mb-1.5 block text-sm font-semibold text-dark">
+                Full Name
+              </label>
               <input
                 type="text"
                 name="name"
@@ -65,12 +71,16 @@ export default function RegisterPage() {
                 value={form.name}
                 onChange={handleChange}
                 className="w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="Idriss Garfa"
+                placeholder="your full name"
               />
-              {errors.name && <p className="mt-1 text-xs text-danger">{errors.name}</p>}
+              {errors.name && (
+                <p className="mt-1 text-xs text-danger">{errors.name}</p>
+              )}
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-semibold text-dark">Email</label>
+              <label className="mb-1.5 block text-sm font-semibold text-dark">
+                Email
+              </label>
               <input
                 type="email"
                 name="email"
@@ -79,12 +89,23 @@ export default function RegisterPage() {
                 className="w-full rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 placeholder="your@email.com"
               />
-              {errors.email && <p className="mt-1 text-xs text-danger">{errors.email}</p>}
+              {errors.email && (
+                <p className="mt-1 text-xs text-danger">{errors.email}</p>
+              )}
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-semibold text-dark">Password</label>
-              <PasswordInput name="password" value={form.password} onChange={handleChange} placeholder="Minimum 6 characters" />
-              {errors.password && <p className="mt-1 text-xs text-danger">{errors.password}</p>}
+              <label className="mb-1.5 block text-sm font-semibold text-dark">
+                Password
+              </label>
+              <PasswordInput
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Minimum 6 characters"
+              />
+              {errors.password && (
+                <p className="mt-1 text-xs text-danger">{errors.password}</p>
+              )}
             </div>
             <button
               type="submit"
@@ -96,7 +117,10 @@ export default function RegisterPage() {
           </form>
           <p className="mt-5 text-center text-sm text-muted">
             Already have an account?{" "}
-            <Link to="/login" className="font-semibold text-primary hover:underline">
+            <Link
+              to="/login"
+              className="font-semibold text-primary hover:underline"
+            >
               Login
             </Link>
           </p>

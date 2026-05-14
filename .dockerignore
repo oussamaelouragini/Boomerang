@@ -1,0 +1,8 @@
+.git
+.claude
+**/node_modules
+**/.env
+**/dist
+backend/uploads/*
+!backend/uploads/.gitkeep
+docs/
